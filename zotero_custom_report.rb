@@ -24,6 +24,7 @@ prog_bar = ProgressBar.create(:title => "Entries written", :starting_at => 0, :t
 bibliography.each do |entry|
 	citation = CiteProc.process(entry.to_citeproc, :style => :apa)
 	notes = entry[:annote]
+	notes = notes.gsub(/$/,"\n\n") unless notes.nil?
 	key = entry[:keywords].to_s
 	key_list << key
 

@@ -1,4 +1,10 @@
-puts "Initializing..."
+###########
+#
+# This script takes a BibLaTeX file exported from Zotero and generates
+# a PDF report of citations and their notes, sorted by tag.
+#
+#
+###########
 
 require 'citeproc'
 require 'bibtex'
@@ -7,9 +13,9 @@ require 'ruby-progressbar'
 BIBTEX_PATH = 'report.bib'
 OUTPUT_PATH = 'output/report.latex'
 
+# Add any desired frontmatter to the report file
 report = File.open(OUTPUT_PATH, "w")
 HEADER = [
-	"\\tableofcontents"
 ]
 HEADER.each { |e| report.puts e }
 
@@ -21,10 +27,17 @@ key_list = []
 puts "Generating citations..."
 prog_bar = ProgressBar.create(:title => "Entries written", :starting_at => 0, :total => bibliography.count, :format => '%c |%b>>%i| %p%% %t')	# => Create a progress bar
 
+# Generate a citation via CiteProc for each bibliographic entry, and
+# retrieve&format its annotations. These are put into a temporary array until
+# the list of unique tags is determined
+
 bibliography.each do |entry|
 	citation = CiteProc.process(entry.to_citeproc, :style => :apa)
 	notes = entry[:annote]
+	# Exported notes only have single line breaks between paragraphs. LaTeX
+	# requires double line breaks
 	notes = notes.gsub(/$/,"\n\n") unless notes.nil?
+	# Retrieve the entry keyword and store it in a temporary array
 	key = entry[:keywords].to_s
 	key_list << key
 
@@ -36,10 +49,11 @@ bibliography.each do |entry|
 	prog_bar.increment
 end
 
-puts "#{key_list.count} total keys"
 key_list.uniq!
-puts "#{key_list.count} different keys."
+puts "#{key_list.count} unique sections."
 
+# Write a section for each key, and put individual citations with that key
+# into each subsection
 puts "Writing out to latex..."
 for key in key_list do
 	report.puts "\\section{#{key}}"
@@ -48,7 +62,6 @@ for key in key_list do
 		report.puts entry[:notes]
 	end
 end
-	
 
 puts "Generating pdf..."
 `pandoc output/report.latex -o output/report.pdf --latex-engine=xelatex`

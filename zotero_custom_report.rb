@@ -33,6 +33,7 @@ prog_bar = ProgressBar.create(:title => "Entries written", :starting_at => 0, :t
 
 bibliography.each do |entry|
 	citation = CiteProc.process(entry.to_citeproc, :style => :apa)
+	date = entry[:year].to_i
 	notes = entry[:annote]
 	# Exported notes only have single line breaks between paragraphs. LaTeX
 	# requires double line breaks
@@ -44,7 +45,8 @@ bibliography.each do |entry|
 	storage << {
 		:key => key,
 		:citation => citation,
-		:notes => notes
+		:notes => notes,
+		:date => date
 	}
 	prog_bar.increment
 end
@@ -57,7 +59,7 @@ puts "#{key_list.count} unique sections."
 puts "Writing out to latex..."
 for key in key_list do
 	report.puts "\\section{#{key}}"
-	storage.select { |value| value[:key] == key }.each do |entry|
+	storage.select{ |value| value[:key] == key }.sort_by!{ |value| value[:date] }.each do |entry|
 		report.puts "\\subsection{#{entry[:citation]}}"
 		report.puts entry[:notes]
 	end

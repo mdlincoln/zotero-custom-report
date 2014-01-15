@@ -64,5 +64,5 @@ for key in key_list do
 end
 
 puts "Generating pdf..."
-`pandoc #{OUTPUT_PATH}/report.latex -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex`
+`pandoc #{OUTPUT_PATH}/report.latex -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex --toc`
 `open #{OUTPUT_PATH}/report.pdf`

@@ -3,7 +3,6 @@
 # This script takes a BibLaTeX file exported from Zotero and generates
 # a PDF report of citations and their notes, sorted by tag.
 #
-#
 ###########
 
 require 'citeproc'

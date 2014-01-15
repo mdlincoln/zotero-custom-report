@@ -11,10 +11,11 @@ require 'bibtex'
 require 'ruby-progressbar'
 
 BIBTEX_PATH = 'report.bib'
-OUTPUT_PATH = 'output/report.latex'
+OUTPUT_PATH = 'output/'
+Dir.mkdir(OUTPUT_PATH) unless Dir.exists?(OUTPUT_PATH)
 
 # Add any desired frontmatter to the report file
-report = File.open(OUTPUT_PATH, "w")
+report = File.open("#{OUTPUT_PATH}/report.latex", "w")
 HEADER = [
 ]
 HEADER.each { |e| report.puts e }
@@ -64,5 +65,5 @@ for key in key_list do
 end
 
 puts "Generating pdf..."
-`pandoc output/report.latex -o output/report.pdf --latex-engine=xelatex`
-`open output/report.pdf`
+`pandoc #{OUTPUT_PATH}/report.latex -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex`
+`open #{OUTPUT_PATH}/report.pdf`

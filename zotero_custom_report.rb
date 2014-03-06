@@ -15,6 +15,11 @@ Dir.mkdir(OUTPUT_PATH) unless Dir.exists?(OUTPUT_PATH)
 # Add any desired frontmatter to the report file
 report = File.open("#{OUTPUT_PATH}/report.md", "w")
 HEADER = [
+	"---",
+	"title: Comprehensive Notes --- American",
+	"author: Matthew Lincoln",
+	"date: #{Date.today.to_s}",
+	"---"
 ]
 HEADER.each { |e| report.puts e }
 bad_chars = "\{\}\\"

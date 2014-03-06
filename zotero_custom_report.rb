@@ -17,6 +17,7 @@ report = File.open("#{OUTPUT_PATH}/report.md", "w")
 HEADER = [
 ]
 HEADER.each { |e| report.puts e }
+bad_chars = "\{\}\\"
 
 puts "Loading bibliography..."
 bibliography = BibTeX.open(BIBTEX_PATH, :strip => false)
@@ -43,11 +44,11 @@ bibliography.each do |entry|
 	else
 		citation = "#{date}: #{author}, #{editor} eds., *#{title}*"
 	end
-	citation = citation.delete("\{\}\\")
+	citation = citation.delete(bad_chars)
 
 	# Exported notes only have single line breaks between paragraphs. LaTeX
 	# requires double line breaks
-	notes = notes.gsub(/$/,"\n\n").delete("\{\}\\") unless notes.nil?
+	notes = notes.gsub(/$/,"\n\n").delete(bad_chars) unless notes.nil?
 	# Retrieve the entry keyword and store it in a temporary array
 	key = entry[:keywords].to_s
 	key_list << key

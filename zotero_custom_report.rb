@@ -21,6 +21,9 @@ HEADER = [
 	"---"
 ]
 HEADER.each { |e| report.puts e }
+
+# Remove these characters from citations and notes to avoid pdftex
+# errors
 bad_chars = "\{\}\\"
 
 puts "Loading bibliography..."
@@ -30,7 +33,7 @@ key_list = []
 
 puts "Generating citations..."
 
-# Generate a citation via CiteProc for each bibliographic entry, and
+# Generate a citation for each bibliographic entry, and
 # retrieve&format its annotations. These are put into a temporary array until
 # the list of unique tags is determined
 

@@ -73,6 +73,8 @@ puts "#{key_list.count} unique sections."
 # into each subsection
 puts "Writing out to latex..."
 for key in key_list do
+	report.puts "\\newpage"
+	report.puts ""
 	report.puts "\# #{key}"
 	storage.select{ |value| value[:key] == key }.sort_by!{ |value| value[:date] }.each do |entry|
 		report.puts "\#\# #{entry[:citation]}"

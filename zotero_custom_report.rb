@@ -77,7 +77,7 @@ for key in key_list do
 	report.puts ""
 	report.puts "\# #{key}"
 	storage.select{ |value| value[:key] == key }.sort_by!{ |value| value[:date] }.each do |entry|
-		report.puts "\#\# #{entry[:citation]}"
+		report.puts "\#\#\# #{entry[:citation]}"
 		report.puts entry[:notes]
 	end
 end

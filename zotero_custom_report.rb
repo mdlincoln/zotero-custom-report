@@ -15,6 +15,8 @@ Dir.mkdir(OUTPUT_PATH) unless Dir.exists?(OUTPUT_PATH)
 # Add any desired frontmatter to the report file
 report = File.open("#{OUTPUT_PATH}/report.latex", "w")
 HEADER = [
+	"\\title{Dutch Art Comprehensive Notes\\\\Matthew Lincoln}",
+	"\\date{#{Date.today.to_s}}",
 ]
 HEADER.each { |e| report.puts e }
 

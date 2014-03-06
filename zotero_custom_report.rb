@@ -32,9 +32,18 @@ puts "Generating citations..."
 bibliography.each do |entry|
 	date = entry[:year].to_i
 	author = entry[:author]
+	editor = entry[:editor]
 	title = entry[:title]
-	citation = "#{date}: #{author}, \\em{#{title}}"
 	notes = entry[:annote]
+
+	if author.nil?
+		citation = "#{date}: #{editor} eds., \\em{#{title}}"
+	elsif editor.nil?
+		citation = "#{date}: #{author}, \\em{#{title}}"
+	else
+		citation = "#{date}: #{author}, #{editor} eds., \\em{#{title}}"
+	end
+
 	# Exported notes only have single line breaks between paragraphs. LaTeX
 	# requires double line breaks
 	notes = notes.gsub(/$/,"\n\n") unless notes.nil?

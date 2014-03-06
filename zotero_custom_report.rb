@@ -5,7 +5,6 @@
 #
 ###########
 
-require 'citeproc'
 require 'bibtex'
 
 BIBTEX_PATH = 'report.bib'

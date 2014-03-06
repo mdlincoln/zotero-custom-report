@@ -7,7 +7,6 @@
 
 require 'citeproc'
 require 'bibtex'
-require 'ruby-progressbar'
 
 BIBTEX_PATH = 'report.bib'
 OUTPUT_PATH = 'output/'
@@ -25,15 +24,16 @@ storage = []
 key_list = []
 
 puts "Generating citations..."
-prog_bar = ProgressBar.create(:title => "Entries written", :starting_at => 0, :total => bibliography.count, :format => '%c |%b>>%i| %p%% %t')	# => Create a progress bar
 
 # Generate a citation via CiteProc for each bibliographic entry, and
 # retrieve&format its annotations. These are put into a temporary array until
 # the list of unique tags is determined
 
 bibliography.each do |entry|
-	citation = CiteProc.process(entry.to_citeproc, :style => :apa)
 	date = entry[:year].to_i
+	author = entry[:author]
+	title = entry[:title]
+	citation = "#{date}: #{author}, \\em{#{title}}"
 	notes = entry[:annote]
 	# Exported notes only have single line breaks between paragraphs. LaTeX
 	# requires double line breaks
@@ -48,7 +48,6 @@ bibliography.each do |entry|
 		:notes => notes,
 		:date => date
 	}
-	prog_bar.increment
 end
 
 key_list.uniq!
@@ -60,7 +59,7 @@ puts "Writing out to latex..."
 for key in key_list do
 	report.puts "\\section{#{key}}"
 	storage.select{ |value| value[:key] == key }.sort_by!{ |value| value[:date] }.each do |entry|
-		report.puts "\\subsection{#{entry[:citation]}}"
+		report.puts "\\subsubsection{#{entry[:citation]}}"
 		report.puts entry[:notes]
 	end
 end

@@ -5,19 +5,26 @@
 #
 ###########
 
-require 'citeproc'
 require 'bibtex'
-require 'ruby-progressbar'
 
 BIBTEX_PATH = 'report.bib'
 OUTPUT_PATH = 'output/'
 Dir.mkdir(OUTPUT_PATH) unless Dir.exists?(OUTPUT_PATH)
 
 # Add any desired frontmatter to the report file
-report = File.open("#{OUTPUT_PATH}/report.latex", "w")
+report = File.open("#{OUTPUT_PATH}/report.md", "w")
 HEADER = [
+	"---",
+	"title: Comprehensive Notes --- American",
+	"author: Matthew Lincoln",
+	"date: #{Date.today.to_s}",
+	"---"
 ]
 HEADER.each { |e| report.puts e }
+
+# Remove these characters from citations and notes to avoid pdftex
+# errors
+bad_chars = "\{\}\\"
 
 puts "Loading bibliography..."
 bibliography = BibTeX.open(BIBTEX_PATH, :strip => false)
@@ -25,19 +32,30 @@ storage = []
 key_list = []
 
 puts "Generating citations..."
-prog_bar = ProgressBar.create(:title => "Entries written", :starting_at => 0, :total => bibliography.count, :format => '%c |%b>>%i| %p%% %t')	# => Create a progress bar
 
-# Generate a citation via CiteProc for each bibliographic entry, and
+# Generate a citation for each bibliographic entry, and
 # retrieve&format its annotations. These are put into a temporary array until
 # the list of unique tags is determined
 
 bibliography.each do |entry|
-	citation = CiteProc.process(entry.to_citeproc, :style => :apa)
 	date = entry[:year].to_i
+	author = entry[:author]
+	editor = entry[:editor]
+	title = entry[:title]
 	notes = entry[:annote]
+
+	if author.nil?
+		citation = "#{date}: #{editor} eds., *#{title}*"
+	elsif editor.nil?
+		citation = "#{date}: #{author}, *#{title}*"
+	else
+		citation = "#{date}: #{author}, #{editor} eds., *#{title}*"
+	end
+	citation = citation.delete(bad_chars)
+
 	# Exported notes only have single line breaks between paragraphs. LaTeX
 	# requires double line breaks
-	notes = notes.gsub(/$/,"\n\n") unless notes.nil?
+	notes = notes.gsub(/$/,"\n\n").delete(bad_chars) unless notes.nil?
 	# Retrieve the entry keyword and store it in a temporary array
 	key = entry[:keywords].to_s
 	key_list << key
@@ -48,7 +66,6 @@ bibliography.each do |entry|
 		:notes => notes,
 		:date => date
 	}
-	prog_bar.increment
 end
 
 key_list.uniq!
@@ -58,13 +75,15 @@ puts "#{key_list.count} unique sections."
 # into each subsection
 puts "Writing out to latex..."
 for key in key_list do
-	report.puts "\\section{#{key}}"
+	report.puts "\\newpage"
+	report.puts ""
+	report.puts "\# #{key}"
 	storage.select{ |value| value[:key] == key }.sort_by!{ |value| value[:date] }.each do |entry|
-		report.puts "\\subsection{#{entry[:citation]}}"
+		report.puts "\#\#\# #{entry[:citation]}"
 		report.puts entry[:notes]
 	end
 end
 
 puts "Generating pdf..."
-`pandoc #{OUTPUT_PATH}/report.latex -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex --toc --toc-depth=1`
+`pandoc #{OUTPUT_PATH}/report.md -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex --toc --toc-depth=1`
 `open #{OUTPUT_PATH}/report.pdf`

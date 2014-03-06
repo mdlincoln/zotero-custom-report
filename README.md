@@ -5,7 +5,7 @@ Simple Ruby script for generating a custom Zotero report from an exported BibTeX
 
 ## Requirements
 
-1. Ruby gems: `bibtex-ruby`, `citeproc-ruby`, `ruby-progressbar`
+1. Ruby gems: `bibtex-ruby`
 2. [Pandoc](http://johnmacfarlane.net/pandoc/)
 
 ## To-Do

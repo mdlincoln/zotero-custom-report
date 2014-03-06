@@ -13,12 +13,16 @@ OUTPUT_PATH = 'output/'
 Dir.mkdir(OUTPUT_PATH) unless Dir.exists?(OUTPUT_PATH)
 
 # Add any desired frontmatter to the report file
-report = File.open("#{OUTPUT_PATH}/report.latex", "w")
+report = File.open("#{OUTPUT_PATH}/report.md", "w")
 HEADER = [
-	"\\title{Dutch Art Comprehensive Notes\\\\Matthew Lincoln}",
-	"\\date{#{Date.today.to_s}}",
+	"---",
+	"title: Comprehensive Notes --- American",
+	"author: Matthew Lincoln",
+	"date: #{Date.today.to_s}",
+	"---"
 ]
 HEADER.each { |e| report.puts e }
+bad_chars = "\{\}\\"
 
 puts "Loading bibliography..."
 bibliography = BibTeX.open(BIBTEX_PATH, :strip => false)
@@ -39,16 +43,17 @@ bibliography.each do |entry|
 	notes = entry[:annote]
 
 	if author.nil?
-		citation = "#{date}: #{editor} eds., \\em{#{title}}"
+		citation = "#{date}: #{editor} eds., *#{title}*"
 	elsif editor.nil?
-		citation = "#{date}: #{author}, \\em{#{title}}"
+		citation = "#{date}: #{author}, *#{title}*"
 	else
-		citation = "#{date}: #{author}, #{editor} eds., \\em{#{title}}"
+		citation = "#{date}: #{author}, #{editor} eds., *#{title}*"
 	end
+	citation = citation.delete(bad_chars)
 
 	# Exported notes only have single line breaks between paragraphs. LaTeX
 	# requires double line breaks
-	notes = notes.gsub(/$/,"\n\n") unless notes.nil?
+	notes = notes.gsub(/$/,"\n\n").delete(bad_chars) unless notes.nil?
 	# Retrieve the entry keyword and store it in a temporary array
 	key = entry[:keywords].to_s
 	key_list << key
@@ -68,13 +73,15 @@ puts "#{key_list.count} unique sections."
 # into each subsection
 puts "Writing out to latex..."
 for key in key_list do
-	report.puts "\\section{#{key}}"
+	report.puts "\\newpage"
+	report.puts ""
+	report.puts "\# #{key}"
 	storage.select{ |value| value[:key] == key }.sort_by!{ |value| value[:date] }.each do |entry|
-		report.puts "\\subsubsection{#{entry[:citation]}}"
+		report.puts "\#\#\# #{entry[:citation]}"
 		report.puts entry[:notes]
 	end
 end
 
 puts "Generating pdf..."
-`pandoc #{OUTPUT_PATH}/report.latex -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex --toc --toc-depth=1`
+`pandoc #{OUTPUT_PATH}/report.md -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex --toc --toc-depth=1`
 `open #{OUTPUT_PATH}/report.pdf`

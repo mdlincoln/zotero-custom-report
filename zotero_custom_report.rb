@@ -83,6 +83,7 @@ for key in key_list do
 		report.puts entry[:notes]
 	end
 end
+report.close
 
 puts "Generating pdf..."
 `pandoc #{OUTPUT_PATH}/report.md -o #{OUTPUT_PATH}/report.pdf --latex-engine=xelatex --toc --toc-depth=1`
